@@ -1,160 +1,100 @@
+import { useState } from "react";
 import "./styles.css";
+import { StoreProvider, useStore, isEmptyState } from "./store";
+import Dashboard from "./views/Dashboard";
+import Packages from "./views/Packages";
+import Wash from "./views/Wash";
+import Sterilization from "./views/Sterilization";
+import Issue from "./views/Issue";
+import Recall from "./views/Recall";
+import Trace from "./views/Trace";
 
-const project = {
-  "id": "hxwl-04",
-  "port": 5104,
-  "title": "牙科根管治疗",
-  "subtitle": "按牙位组织根管步骤、工作长度与复诊计划",
-  "stack": "React + Vite + TypeScript + CSS",
-  "theme": [
-    "#0369a1",
-    "#7c3aed",
-    "#ea580c"
-  ],
-  "domain": "牙体牙髓",
-  "users": [
-    "牙科医生",
-    "助理",
-    "前台复诊协调员"
-  ],
-  "metrics": [
-    "待复诊",
-    "已充填",
-    "平均工作长度",
-    "封药病例"
-  ],
-  "filters": [
-    "开髓",
-    "测长",
-    "封药",
-    "充填"
-  ],
-  "fields": [
-    "牙位",
-    "开髓",
-    "测长",
-    "根管预备",
-    "冲洗",
-    "封药",
-    "主尖锉号"
-  ],
-  "records": [
-    [
-      "#36",
-      "慢性根尖周炎",
-      "封药",
-      "MB 19.5mm，主尖锉#30"
-    ],
-    [
-      "#11",
-      "外伤后变色",
-      "充填",
-      "单根管，冷侧压完成"
-    ],
-    [
-      "#46",
-      "急性牙髓炎",
-      "测长",
-      "近中双根管需复诊"
-    ]
-  ]
-};
+const TABS = [
+  { key: "dashboard", label: "总览" },
+  { key: "packages", label: "器械包登记" },
+  { key: "wash", label: "清洗批次" },
+  { key: "ster", label: "灭菌与监测" },
+  { key: "issue", label: "放行发放" },
+  { key: "recall", label: "召回追踪" },
+  { key: "trace", label: "追溯查询" },
+] as const;
 
-const statusColors = ["status-ok", "status-watch", "status-danger"];
+type TabKey = (typeof TABS)[number]["key"];
 
-function MetricCard({ label, value, index }: { label: string; value: string; index: number }) {
+function DataBar() {
+  const { state, resetDemo, clearAll } = useStore();
+  const [confirmClear, setConfirmClear] = useState(false);
+  const empty = isEmptyState(state);
+
   return (
-    <article className="metric-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <i className={statusColors[index % statusColors.length]} />
-    </article>
+    <div className="data-bar">
+      <span className="muted small">数据仅保存在本机浏览器（localStorage），刷新不丢失，无后端</span>
+      <div className="data-actions">
+        {empty && <button className="primary-action" onClick={resetDemo}>恢复演示数据</button>}
+        {!empty && !confirmClear && <button onClick={() => setConfirmClear(true)}>清空数据</button>}
+        {!empty && confirmClear && (
+          <>
+            <span className="warn-text small">确认清空全部台账？</span>
+            <button className="danger-action" onClick={() => { clearAll(); setConfirmClear(false); }}>确认清空</button>
+            <button onClick={() => setConfirmClear(false)}>取消</button>
+          </>
+        )}
+        <button onClick={resetDemo} title="用内置演示数据覆盖当前数据">重置为演示数据</button>
+      </div>
+    </div>
   );
 }
 
-function App() {
-  const values = project.metrics.map((metric: string, index: number) => {
-    const base = [84, 12, 31, 7][index % 4];
-    return String(base + index * 3);
-  });
+function Shell() {
+  const [tab, setTab] = useState<TabKey>("dashboard");
 
   return (
     <main className="app-shell">
       <section className="hero">
         <div>
-          <p className="eyebrow">{project.id} · port {project.port}</p>
-          <h1>{project.title}</h1>
-          <p className="subtitle">{project.subtitle}</p>
+          <p className="eyebrow">hxwl-04 · 口腔消毒供应中心（CSSD）· port 5104</p>
+          <h1>牙科器械再处理追溯台</h1>
+          <p className="subtitle">
+            器械包登记 → 清洗批次（同包不得重复入批）→ 灭菌锅次物理/化学/生物三项监测，全过放行、任一失败整批隔离 →
+            发放登记椅位与时间（过期/召回拒绝）→ 按批次召回并追踪同锅次后续去向。
+          </p>
         </div>
         <div className="stack-card">
           <span>技术栈</span>
-          <strong>{project.stack}</strong>
+          <strong>React 19 + Vite + TypeScript + CSS</strong>
+          <span className="muted small">localStorage 持久化 · 无后端依赖</span>
         </div>
       </section>
 
-      <section className="metrics-grid">
-        {project.metrics.map((metric: string, index: number) => (
-          <MetricCard key={metric} label={metric} value={values[index]} index={index} />
+      <DataBar />
+
+      <nav className="tab-bar">
+        {TABS.map((t) => (
+          <button key={t.key} className={tab === t.key ? "tab-on" : ""} onClick={() => setTab(t.key)}>
+            {t.label}
+          </button>
         ))}
-      </section>
+      </nav>
 
-      <section className="workspace">
-        <aside className="panel narrow">
-          <h2>角色</h2>
-          <div className="chips">
-            {project.users.map((user: string) => (
-              <span key={user}>{user}</span>
-            ))}
-          </div>
-          <h2>筛选</h2>
-          <div className="chips muted">
-            {project.filters.map((filter: string) => (
-              <button key={filter}>{filter}</button>
-            ))}
-          </div>
-        </aside>
+      {tab === "dashboard" && <Dashboard />}
+      {tab === "packages" && <Packages />}
+      {tab === "wash" && <Wash />}
+      {tab === "ster" && <Sterilization />}
+      {tab === "issue" && <Issue />}
+      {tab === "recall" && <Recall />}
+      {tab === "trace" && <Trace />}
 
-        <section className="panel">
-          <div className="section-heading">
-            <div>
-              <p>{project.domain}</p>
-              <h2>记录字段</h2>
-            </div>
-            <button className="primary-action">新增记录</button>
-          </div>
-          <div className="field-grid">
-            {project.fields.map((field: string) => (
-              <label key={field}>
-                <span>{field}</span>
-                <input placeholder={"填写" + field} />
-              </label>
-            ))}
-          </div>
-        </section>
-      </section>
-
-      <section className="records panel">
-        <div className="section-heading">
-          <div>
-            <p>示例数据</p>
-            <h2>近期记录</h2>
-          </div>
-          <button>导出摘要</button>
-        </div>
-        <div className="record-list">
-          {project.records.map((record: string[], index: number) => (
-            <article key={record.join("-")} className="record-card">
-              <div className="record-index">{String(index + 1).padStart(2, "0")}</div>
-              <div>
-                <h3>{record[0]}</h3>
-                <p>{record.slice(1).join(" · ")}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <footer className="app-footer">
+        追溯链：器械包 → 清洗批次 → 灭菌锅次 → 三项监测 → 放行/隔离 → 发放椅位 → 召回追踪
+      </footer>
     </main>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <StoreProvider>
+      <Shell />
+    </StoreProvider>
+  );
+}
