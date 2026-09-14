@@ -364,6 +364,7 @@ select {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: auto;
 }
 
 .data-table th,
@@ -372,6 +373,7 @@ select {
   padding: 10px 12px;
   border-bottom: 1px solid #e8eef6;
   vertical-align: top;
+  word-break: break-word;
 }
 
 .data-table th {
@@ -753,5 +755,164 @@ select {
 
   .metrics-grid-8 {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 窄屏：数据表转为卡片式，不再横向拖动 */
+@media (max-width: 720px) {
+  /* 兜底：任何子元素都不允许把页面横向撑出 */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    width: calc(100% - 20px);
+    padding-top: 20px;
+  }
+
+  .hero > div:first-child {
+    padding: 22px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .metrics-grid-8 {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .metric-card {
+    padding: 14px;
+    min-height: 88px;
+  }
+
+  .metric-card strong {
+    font-size: 26px;
+  }
+
+  .field-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .pick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 表格 → 卡片：隐藏表头，每个单元格一行，前面带字段名 */
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  .data-table,
+  .data-table thead,
+  .data-table tbody,
+  .data-table tr,
+  .data-table th,
+  .data-table td {
+    display: block;
+  }
+
+  .data-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .data-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .data-table tr {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    background: #fff;
+  }
+
+  .data-table tr.row-danger {
+    border-color: #fecdd3;
+  }
+
+  .data-table tr.row-open {
+    border-color: #fde68a;
+  }
+
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e8eef6;
+    text-align: right;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    flex: 0 0 auto;
+    text-align: left;
+  }
+
+  /* 名称/器械包这类“主字段”纵向堆叠更易读 */
+  .data-table td[data-label="名称 / 包内器械"],
+  .data-table td[data-label="器械包"] {
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .data-table td[data-label="器械包"] .mini-tag {
+    margin-left: 0;
+  }
+
+  .data-table td.nowrap {
+    white-space: normal;
+  }
+
+  /* 卡片式下全宽按钮更易点 */
+  .data-table td[data-label="操作"] button {
+    width: 100%;
+  }
+
+  .batch-head {
+    flex-direction: column;
+  }
+
+  .record-card {
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+  }
+
+  .record-index {
+    width: 40px;
+    height: 40px;
+  }
+
+  .section-heading {
+    flex-direction: column;
+  }
+
+  .chips-filter {
+    justify-content: flex-start;
+  }
+
+  .toast {
+    width: calc(100% - 24px);
+    text-align: center;
   }
 }

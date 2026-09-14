@@ -87,12 +87,12 @@ export default function Wash() {
               <tbody>
                 {batches.map((b) => (
                   <tr key={b.id} className={b.endedAt ? "" : "row-open"}>
-                    <td className="mono strong">{b.id}</td>
-                    <td>{b.washer}<br /><span className="muted">{b.operator}</span></td>
-                    <td className="nowrap">{fmtDateTime(b.startedAt)}</td>
-                    <td className="nowrap">{b.endedAt ? fmtDateTime(b.endedAt) : <span className="badge badge-amber">未结束</span>}</td>
-                    <td>{b.packageIds.map((id) => <span key={id} className="mini-tag">{id}</span>)}</td>
-                    <td>
+                    <td data-label="批次号" className="mono strong">{b.id}</td>
+                    <td data-label="设备 / 登记人">{b.washer}<br /><span className="muted">{b.operator}</span></td>
+                    <td data-label="登记时间" className="nowrap">{fmtDateTime(b.startedAt)}</td>
+                    <td data-label="结束时间" className="nowrap">{b.endedAt ? fmtDateTime(b.endedAt) : <span className="badge badge-amber">未结束</span>}</td>
+                    <td data-label="器械包">{b.packageIds.map((id) => <span key={id} className="mini-tag">{id}</span>)}</td>
+                    <td data-label="操作">
                       {!b.endedAt && <button onClick={() => finish(b.id)}>结束批次</button>}
                       {b.endedAt && <span className="muted">已完成</span>}
                     </td>

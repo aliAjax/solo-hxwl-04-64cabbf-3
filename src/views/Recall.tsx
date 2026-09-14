@@ -111,13 +111,13 @@ export default function Recall() {
                   const pkg = state.packages.find((p) => p.id === i.packageId);
                   return (
                     <tr key={i.id} className="row-danger">
-                      <td className="mono strong">{i.id}</td>
-                      <td>{i.packageId} <span className="muted">{pkg?.name}</span></td>
-                      <td className="mono">{i.sterBatchId}</td>
-                      <td className="strong">{i.chair}</td>
-                      <td className="nowrap">{fmtDateTime(i.issuedAt)}</td>
-                      <td><span className="badge badge-red">待追踪</span></td>
-                      <td><button className="primary-action" onClick={() => confirmOne(i.id)}>确认已追踪</button></td>
+                      <td data-label="发放号" className="mono strong">{i.id}</td>
+                      <td data-label="器械包">{i.packageId} <span className="muted">{pkg?.name}</span></td>
+                      <td data-label="锅次" className="mono">{i.sterBatchId}</td>
+                      <td data-label="椅位" className="strong">{i.chair}</td>
+                      <td data-label="发放时间" className="nowrap">{fmtDateTime(i.issuedAt)}</td>
+                      <td data-label="追踪"><span className="badge badge-red">待追踪</span></td>
+                      <td data-label="操作"><button className="primary-action" onClick={() => confirmOne(i.id)}>确认已追踪</button></td>
                     </tr>
                   );
                 })}
@@ -143,17 +143,17 @@ function RecallTable({ issues, state, onConfirm }: {
         <tbody>
           {issues.map((i) => (
             <tr key={i.id} className={i.tracking === "to-track" ? "row-danger" : ""}>
-              <td className="mono strong">{i.id}</td>
-              <td>{i.packageId} <span className="muted">{state.packages.find((p) => p.id === i.packageId)?.name}</span></td>
-              <td className="strong">{i.chair}</td>
-              <td className="nowrap">{fmtDateTime(i.issuedAt)}</td>
-              <td>{i.returnedAt ? "已归还" : "使用中"}</td>
-              <td>
+              <td data-label="发放号" className="mono strong">{i.id}</td>
+              <td data-label="器械包">{i.packageId} <span className="muted">{state.packages.find((p) => p.id === i.packageId)?.name}</span></td>
+              <td data-label="椅位" className="strong">{i.chair}</td>
+              <td data-label="发放时间" className="nowrap">{fmtDateTime(i.issuedAt)}</td>
+              <td data-label="归还">{i.returnedAt ? "已归还" : "使用中"}</td>
+              <td data-label="追踪状态">
                 {i.tracking === "normal" && <span className="muted">未受影响</span>}
                 {i.tracking === "to-track" && <span className="badge badge-red">待追踪</span>}
                 {i.tracking === "confirmed" && <span className="badge badge-green">已确认</span>}
               </td>
-              <td>{i.tracking === "to-track" && <button onClick={() => onConfirm(i.id)}>确认追踪</button>}</td>
+              <td data-label="操作">{i.tracking === "to-track" && <button onClick={() => onConfirm(i.id)}>确认追踪</button>}</td>
             </tr>
           ))}
         </tbody>

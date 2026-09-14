@@ -282,7 +282,7 @@ export function checkIssue(state: AppState, packageId: string, nowIso = new Date
   return { allowed: reasons.length === 0, reasons };
 }
 
-/** 发放：登记椅位与发放时间 */
+/** 发放：登记椅位与发放时间；有效期按“填写的发放时间”校验（而非当前时间） */
 export function issuePackage(
   state: AppState,
   input: { packageId: string; chair: string; issuedAt: string },
@@ -290,7 +290,9 @@ export function issuePackage(
 ): { state: AppState; result: Result } {
   const chair = input.chair.trim();
   if (!chair) return { state, result: { ok: false, message: "请登记椅位" } };
-  const check = checkIssue(state, input.packageId, nowIso);
+  const issuedAtIso = input.issuedAt ? localInputToIso(input.issuedAt) : nowIso;
+  // 过期/召回等时间相关判断以实际登记的发放时间为准，避免把发放时间填到有效期之后仍能保存
+  const check = checkIssue(state, input.packageId, issuedAtIso);
   if (!check.allowed) return { state, result: { ok: false, message: "拒绝发放：" + check.reasons.join("；") } };
   const p = state.packages.find((x) => x.id === input.packageId)!;
   const { id, seq } = nextId("ISS", state.seq);
@@ -299,7 +301,7 @@ export function issuePackage(
     packageId: p.id,
     sterBatchId: p.sterBatchId!,
     chair,
-    issuedAt: input.issuedAt ? localInputToIso(input.issuedAt) : nowIso,
+    issuedAt: issuedAtIso,
     returnedAt: null,
     tracking: "normal",
     trackedNote: null,

@@ -69,11 +69,11 @@ export default function Packages() {
               <tbody>
                 {rows.map((p) => (
                   <tr key={p.id}>
-                    <td className="mono strong">{p.id}</td>
-                    <td><b>{p.name}</b><br /><span className="muted">{p.contents}</span></td>
-                    <td>{p.validDays} 天</td>
-                    <td className="nowrap">{fmtDateTime(p.createdAt)}</td>
-                    <td><StageBadge stage={stageOf(state, p.id)} /></td>
+                    <td data-label="编号" className="mono strong">{p.id}</td>
+                    <td data-label="名称 / 包内器械"><b>{p.name}</b><br /><span className="muted">{p.contents}</span></td>
+                    <td data-label="有效期">{p.validDays} 天</td>
+                    <td data-label="登记时间" className="nowrap">{fmtDateTime(p.createdAt)}</td>
+                    <td data-label="状态"><StageBadge stage={stageOf(state, p.id)} /></td>
                   </tr>
                 ))}
               </tbody>

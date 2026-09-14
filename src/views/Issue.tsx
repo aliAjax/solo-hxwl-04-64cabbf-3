@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
 import { checkIssue, expiryOf, issuePackage, returnPackage, stageOf } from "../domain";
-import { fmtDate, fmtDateTime, nowLocalInput } from "../utils";
+import { fmtDate, fmtDateTime, localInputToIso, nowLocalInput } from "../utils";
 import { Empty, Field, ToastBar, useToast } from "../ui";
 
 export default function Issue() {
@@ -16,7 +16,9 @@ export default function Issue() {
     () => state.packages.filter((p) => stageOf(state, p.id) === "released"),
     [state]
   );
-  const check = packageId ? checkIssue(state, packageId) : null;
+  // 实时校验以“填写的发放时间”为准，避免录入时间晚于有效期仍可保存
+  const checkTime = issuedAt ? localInputToIso(issuedAt) : new Date().toISOString();
+  const check = packageId ? checkIssue(state, packageId, checkTime) : null;
   const exp = packageId ? expiryOf(state, packageId) : null;
 
   const submit = () => {
@@ -104,19 +106,19 @@ export default function Issue() {
                   const sb = state.sterBatches.find((b) => b.id === i.sterBatchId);
                   return (
                     <tr key={i.id} className={i.tracking === "to-track" ? "row-danger" : ""}>
-                      <td className="mono strong">{i.id}</td>
-                      <td>{i.packageId}<br /><span className="muted">{pkg?.name}</span></td>
-                      <td className="mono">{i.sterBatchId}</td>
-                      <td className="strong">{i.chair}</td>
-                      <td className="nowrap">{fmtDateTime(i.issuedAt)}</td>
-                      <td className="nowrap">{i.returnedAt ? fmtDateTime(i.returnedAt) : <span className="badge badge-purple">使用中</span>}</td>
-                      <td>
+                      <td data-label="发放号" className="mono strong">{i.id}</td>
+                      <td data-label="器械包">{i.packageId}<br /><span className="muted">{pkg?.name}</span></td>
+                      <td data-label="锅次" className="mono">{i.sterBatchId}</td>
+                      <td data-label="椅位" className="strong">{i.chair}</td>
+                      <td data-label="发放时间" className="nowrap">{fmtDateTime(i.issuedAt)}</td>
+                      <td data-label="归还" className="nowrap">{i.returnedAt ? fmtDateTime(i.returnedAt) : <span className="badge badge-purple">使用中</span>}</td>
+                      <td data-label="追踪">
                         {i.tracking === "normal" && <span className="muted">正常</span>}
                         {i.tracking === "to-track" && <span className="badge badge-red">待追踪</span>}
                         {i.tracking === "confirmed" && <span className="badge badge-green" title={i.trackedNote ?? ""}>已确认</span>}
                         {sb?.recalledAt && <div className="small muted">锅次已召回</div>}
                       </td>
-                      <td>{!i.returnedAt && <button onClick={() => giveBack(i.id)}>使用归还</button>}</td>
+                      <td data-label="操作">{!i.returnedAt && <button onClick={() => giveBack(i.id)}>使用归还</button>}</td>
                     </tr>
                   );
                 })}

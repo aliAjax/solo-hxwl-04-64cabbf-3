@@ -149,6 +149,29 @@ console.log("5. 超过有效期拒绝发放");
   const future = new Date("2026-09-09T10:01:00").toISOString();
   const chk2 = d.checkIssue(s, ids[0], future);
   check("第 8 天判定过期", !chk2.allowed && chk2.reasons.some((r) => r.includes("有效期")), chk2.reasons.join("；"));
+
+  // 缺陷回归：当前时间未过期，但“填写的发放时间”晚于有效期 → 必须拒绝保存
+  const now = new Date("2026-09-02T08:00:00").toISOString(); // 当前时刻未过期
+  const lateInput = d.issuePackage(
+    s,
+    { packageId: ids[0], chair: "2 号椅位", issuedAt: "2026-09-09T10:01" },
+    now
+  );
+  check(
+    "当前未过期但发放时间填到有效期之后 → 拒绝发放",
+    !lateInput.result.ok && lateInput.result.message.includes("有效期"),
+    lateInput.result.message
+  );
+  check("拒绝时无新增发放记录", lateInput.state.issues.length === 0);
+
+  // 发放时间在有效期内（晚于当前时间的补录场景）应允许：有效期截至 09-08 10:00
+  const okBackfill = d.issuePackage(
+    s,
+    { packageId: ids[1], chair: "4 号椅位", issuedAt: "2026-09-08T09:00" },
+    now
+  );
+  check("有效期内的发放时间可保存", okBackfill.result.ok && okBackfill.state.issues.length === 1, okBackfill.result.message);
+  check("保存的发放时间等于填写值", okBackfill.state.issues[0]?.issuedAt === new Date("2026-09-08T09:00:00").toISOString());
   void iso;
 }
 

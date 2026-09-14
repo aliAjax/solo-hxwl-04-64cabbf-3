@@ -3,9 +3,10 @@
     "dev": "vite --host 0.0.0.0 --port 5104",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 5104",
-    "verify": "node scripts/verify-domain.mjs && node scripts/verify-ui.mjs",
+    "verify": "node scripts/verify-domain.mjs && node scripts/verify-ui.mjs && node scripts/verify-narrow.mjs",
     "verify:domain": "node scripts/verify-domain.mjs",
-    "verify:ui": "node scripts/verify-ui.mjs"
+    "verify:ui": "node scripts/verify-ui.mjs",
+    "verify:narrow": "node scripts/verify-narrow.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
